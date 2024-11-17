@@ -32,15 +32,15 @@ const poppins_bold = Poppins({
 export const metadata: Metadata = {
   title: "appshots",
   description:
-    "actually ship(fast) - a simple to use boilerplate right out of the box with auth, payments and db functions all packed with in!",
-  twitter: {
-    card: "summary_large_image", // For a large Twitter card
-    site: "https://boilerplate-nextjs-delta.vercel.app/",
-    title: "actually ship(fast) - Nextjs Boilerplate",
-    description:
-      "actually ship(fast) - a simple to use boilerplate right out of the box with auth, payments and db functions all packed with in!",
-    images: "/twitter-image.png", // Twitter image
-  },
+    "You can now design & export screenshots for your apple connect in all required sizes!",
+  // twitter: {
+  //   card: "summary_large_image", // For a large Twitter card
+  //   site: "https://boilerplate-nextjs-delta.vercel.app/",
+  //   title: "actually ship(fast) - Nextjs Boilerplate",
+  //   description:
+  //     "actually ship(fast) - a simple to use boilerplate right out of the box with auth, payments and db functions all packed with in!",
+  //   images: "/twitter-image.png", // Twitter image
+  // },
 };
 
 export default function RootLayout({
@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Head>
+      {/* <Head>
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:site"
@@ -65,7 +65,7 @@ export default function RootLayout({
           content="actually ship(fast) - a simple to use boilerplate right out of the box with auth, payments and db functions all packed with in!"
         />
         <meta name="twitter:image" content="/twitter-image.png" />
-      </Head>
+      </Head> */}
       <body
         className={`${poppins.variable} ${poppins_extrabold.variable} ${poppins_bold.variable}`}
       >
