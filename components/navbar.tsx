@@ -34,33 +34,17 @@ function Navbar() {
   };
 
   return (
-    <div className="top-0 sticky z-50 flex justify-between items-center p-5 px-10">
-      <Link href={"/"}>
-        <h1 className="font-poppins text-sm">actually ship(fast)</h1>
-      </Link>
+    <nav className="fixed top-0 left-0 right-0 border-b z-50">
+      <div className="top-0 sticky z-[999px] bg-white flex justify-between items-center p-4 px-10 shadow-md">
+        <Link href={"/"}>
+          <p className=" font-poppins-extrabold text-xl">appshots</p>
+        </Link>
 
-      <div className="flex items-center space-x-3">
-        {user ? (
-          <div className="flex items-center space-x-3">
-            <h1 className="font-poppins text-sm">
-              Hey, {user?.user_metadata?.username}
-            </h1>
-
-            <h1
-              onClick={handleSignOut}
-              className="font-poppins text-sm underline cursor-pointer"
-            >
-              Sign out
-            </h1>
-          </div>
-        ) : (
-          <Link href={"/auth/sign-in"}>
-            <h1 className="font-poppins text-sm underline">Sign in</h1>
-          </Link>
-        )}
-        <DarkModeToggler />
+        {/* <div className="flex items-center space-x-3">
+          <DarkModeToggler />
+        </div> */}
       </div>
-    </div>
+    </nav>
   );
 }
 

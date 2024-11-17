@@ -5,6 +5,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import Head from "next/head";
 import { Analytics } from "@vercel/analytics/react";
+import { AppSidebar } from "@/components/sidebar";
+import { GradientProvider } from "@/contexts/GradientContext";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import Loading from "@/components/loading";
+import { Suspense } from "react";
 
 const poppins = Poppins({
   weight: ["300"],
@@ -25,7 +30,7 @@ const poppins_bold = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Nextjs Boilerplate",
+  title: "appshots",
   description:
     "actually ship(fast) - a simple to use boilerplate right out of the box with auth, payments and db functions all packed with in!",
   twitter: {
@@ -66,13 +71,19 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          {children}
-          <Analytics />
+          <GradientProvider>
+            <div className="flex flex-col w-full pt-20">
+              <Navbar />
+
+              <Suspense fallback={<Loading />}>
+                <main className="flex">{children}</main>
+              </Suspense>
+            </div>
+          </GradientProvider>
         </ThemeProvider>
       </body>
     </html>
