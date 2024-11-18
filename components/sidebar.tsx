@@ -403,7 +403,7 @@ export function AppSidebar() {
                   <Slider
                     value={[selectedImageElement.height]}
                     min={50}
-                    max={500}
+                    max={1000}
                     step={10}
                     className="mt-2"
                     onValueChange={(value) => handleSizeChange("height", value)}
@@ -415,7 +415,7 @@ export function AppSidebar() {
                   <Slider
                     value={[selectedImageElement.width]}
                     min={50}
-                    max={500}
+                    max={1000}
                     step={10}
                     className="mt-2"
                     onValueChange={(value) => handleSizeChange("width", value)}

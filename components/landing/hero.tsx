@@ -42,7 +42,7 @@ export default function Hero() {
 
   return (
     <motion.div
-      className="flex w-full flex-col items-center pt-10 min-h-screen"
+      className="flex w-full flex-col items-center pt-10 h-screen"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -86,19 +86,6 @@ export default function Hero() {
           className="object-cover mt-10"
         />
       </motion.div>
-
-      <motion.p className="mt-5 mb-3 text-xs" variants={itemVariants}>
-        Built by{" "}
-        <a
-          className="underline"
-          target="_blank"
-          href="https://x.com/khushaal_04"
-          rel="noopener noreferrer"
-        >
-          Khushaal
-        </a>{" "}
-        with 🫶
-      </motion.p>
     </motion.div>
   );
 }

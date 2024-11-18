@@ -15,6 +15,9 @@ import { Button } from "@/components/ui/button";
 import { useGradient } from "@/contexts/GradientContext";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 const SCREENSHOT_SIZES = [
   { width: 1290, height: 2796, name: '6.7"' }, // iPhone 14 Pro Max
   { width: 1179, height: 2556, name: '6.1"' }, // iPhone 14 Pro
@@ -44,13 +47,17 @@ export default function Component() {
     setSelectedImage,
     updateElementPosition,
     deleteElementFromContext,
+    updateTextElement,
   } = useGradient();
 
   const phoneContentRef = useRef<HTMLDivElement>(null);
+  const phoneMockupContentRef = useRef<HTMLDivElement>(null);
+  const [usePhoneMockup, setusePhoneMockup] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
   const [textAlignment, setTextAlignment] = useState<
     "left" | "center" | "right"
   >("left");
+  const [zIndex, setZIndex] = useState<number>(1);
 
   const handlePositionSelect = (
     position: string,
@@ -68,8 +75,13 @@ export default function Component() {
     try {
       const zip = new JSZip();
 
+      const containerRef = usePhoneMockup
+        ? phoneMockupContentRef
+        : phoneContentRef;
+      if (!containerRef.current) return;
+
       // Configure canvas to include transparency
-      const canvas = await html2canvas(phoneContentRef.current, {
+      const canvas = await html2canvas(containerRef.current, {
         backgroundColor: null, // Ensures the background is transparent
       });
       const baseImage = canvas.toDataURL("image/png");
@@ -110,7 +122,7 @@ export default function Component() {
     }
   };
 
-  const handleSliderChange = (axis: "x" | "y", value: number[]) => {
+  const handleSliderChange = (axis: "x" | "y" | "z", value: number[]) => {
     const selectedId = selectedText || selectedImage;
     const type = selectedText ? "text" : "image";
 
@@ -121,11 +133,21 @@ export default function Component() {
           : imageElements.find((el) => el.id === selectedId);
 
       if (currentElement) {
-        const newPosition = {
-          x: axis === "x" ? value[0] : currentElement.position.x,
-          y: axis === "y" ? value[0] : currentElement.position.y,
-        };
-        updateElementPosition(selectedId, newPosition, type);
+        if (axis === "z") {
+          setZIndex(value[0]);
+          const newPosition = {
+            ...currentElement.position,
+            zIndex: value[0],
+          };
+          updateElementPosition(selectedId, newPosition, type);
+        } else {
+          const newPosition = {
+            ...currentElement.position,
+            x: axis === "x" ? value[0] : currentElement.position.x,
+            y: axis === "y" ? value[0] : currentElement.position.y,
+          };
+          updateElementPosition(selectedId, newPosition, type);
+        }
       }
     }
   };
@@ -150,14 +172,25 @@ export default function Component() {
     }
   };
 
+  const handleTextEdit = (newText: string) => {
+    if (selectedText) {
+      const currentElement = textElements.find((el) => el.id === selectedText);
+      if (currentElement) {
+        updateTextElement(selectedText, { text: newText });
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8 min-h-screen mx-auto w-full bg-gray-100 pt-10">
       {/* Top section with phone and controls */}
       <div className="flex items-start justify-center gap-8">
         {/* Phone */}
         <div
-          ref={phoneContentRef}
-          className="relative w-[300px] h-[600px] bg-black rounded-[55px] shadow-xl overflow-hidden"
+          ref={phoneMockupContentRef}
+          className={`relative w-[300px] h-[600px] ${
+            usePhoneMockup ? " bg-black shadow-xl rounded-[55px]" : ""
+          } overflow-hidden`}
         >
           {/* Grid overlay */}
           {(selectedText || selectedImage) && (
@@ -173,7 +206,10 @@ export default function Component() {
 
           {/* Content */}
           <div
-            className={`absolute inset-3 rounded-[48px] overflow-hidden ${
+            ref={phoneContentRef}
+            className={`absolute inset-3 ${
+              usePhoneMockup ? "rounded-[48px]" : "rounded-2xl"
+            } overflow-hidden ${
               !selectedGradient.startsWith("#") ? selectedGradient : ""
             }`}
             style={{
@@ -183,7 +219,12 @@ export default function Component() {
             }}
           >
             {/* Notch */}
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-[120px] h-[35px] bg-black rounded-full z-10"></div>
+            {usePhoneMockup && (
+              <div
+                style={{ zIndex: 100 }}
+                className="absolute  top-2 left-1/2 transform -translate-x-1/2 w-[120px] h-[35px] bg-black rounded-full z-10"
+              ></div>
+            )}
 
             {/* Text elements */}
             {textElements.map((element) => (
@@ -210,6 +251,7 @@ export default function Component() {
                   border:
                     selectedText === element.id ? "2px dashed #0000FF" : "none",
                   textAlign: textAlignment,
+                  zIndex: element.position.zIndex || 1,
                 }}
               >
                 {element.text}
@@ -236,6 +278,7 @@ export default function Component() {
                   height: image.height,
                   border:
                     selectedImage === image.id ? "2px dashed #0000FF" : "none",
+                  zIndex: image.position.zIndex || 1,
                 }}
               >
                 <img
@@ -269,7 +312,20 @@ export default function Component() {
             <h3 className="font-semibold">
               Position Controls ({selectedText ? "Text" : "Image"})
             </h3>
-
+            {selectedText && (
+              <div className="space-y-2">
+                <Label>Edit Text</Label>
+                <div className="flex gap-2">
+                  <Input
+                    defaultValue={
+                      textElements.find((el) => el.id === selectedText)?.text
+                    }
+                    onChange={(e) => handleTextEdit(e.target.value)}
+                    placeholder="Edit text"
+                  />
+                </div>
+              </div>
+            )}
             {/* Text Alignment Buttons */}
             {selectedText && (
               <div className="flex gap-2">
@@ -309,6 +365,56 @@ export default function Component() {
               Delete Element
             </Button>
 
+            {/* Bring to Front Button */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  const selectedId = selectedText || selectedImage;
+                  const type = selectedText ? "text" : "image";
+                  if (selectedId) {
+                    const currentElement =
+                      type === "text"
+                        ? textElements.find((el) => el.id === selectedId)
+                        : imageElements.find((el) => el.id === selectedId);
+
+                    if (currentElement) {
+                      const newPosition = {
+                        ...currentElement.position,
+                        zIndex: 10, // Set to maximum z-index
+                      };
+                      updateElementPosition(selectedId, newPosition, type);
+                    }
+                  }
+                }}
+                variant="outline"
+              >
+                Bring to Front
+              </Button>
+              <Button
+                onClick={() => {
+                  const selectedId = selectedText || selectedImage;
+                  const type = selectedText ? "text" : "image";
+                  if (selectedId) {
+                    const currentElement =
+                      type === "text"
+                        ? textElements.find((el) => el.id === selectedId)
+                        : imageElements.find((el) => el.id === selectedId);
+
+                    if (currentElement) {
+                      const newPosition = {
+                        ...currentElement.position,
+                        zIndex: 1, // Set to minimum z-index
+                      };
+                      updateElementPosition(selectedId, newPosition, type);
+                    }
+                  }
+                }}
+                variant="outline"
+              >
+                Send to Back
+              </Button>
+            </div>
+
             {/* Position Buttons */}
             <div className="grid grid-cols-2 gap-2">
               {Object.keys(POSITIONS).map((position) => (
@@ -334,6 +440,7 @@ export default function Component() {
                 <span>X:</span>
                 <Slider
                   defaultValue={[0]}
+                  min={-100}
                   max={260}
                   step={1}
                   onValueChange={(value) => handleSliderChange("x", value)}
@@ -343,6 +450,7 @@ export default function Component() {
                 <span>Y:</span>
                 <Slider
                   defaultValue={[0]}
+                  min={-100}
                   max={560}
                   step={1}
                   onValueChange={(value) => handleSliderChange("y", value)}
@@ -354,7 +462,7 @@ export default function Component() {
       </div>
 
       {/* Download Button */}
-      <div className="flex justify-center">
+      <div className="flex justify-center space-x-5 items-center">
         <Button
           onClick={captureScreenshots}
           disabled={isCapturing}
@@ -362,6 +470,14 @@ export default function Component() {
         >
           {isCapturing ? "Processing..." : "Download Screenshots"}
         </Button>
+        <div className="flex items-center space-x-2">
+          <Switch
+            className=""
+            checked={usePhoneMockup}
+            onCheckedChange={() => setusePhoneMockup(!usePhoneMockup)}
+          />
+          <p className="text-xs text-gray-400">(incl phone mockup)</p>
+        </div>
       </div>
     </div>
   );

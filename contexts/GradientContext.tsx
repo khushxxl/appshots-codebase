@@ -2,9 +2,11 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-interface Position2D {
+interface Position {
   x: number;
   y: number;
+  zIndex?: number;
+  textAlign?: string;
 }
 
 interface TextElement {
@@ -13,10 +15,11 @@ interface TextElement {
   fontSize: string;
   fontFamily: string;
   color: string;
-  position: Position2D;
+  position: Position;
   bold: boolean;
   italic: boolean;
   underline: boolean;
+  zIndex: number;
 }
 
 interface ImageElement {
@@ -25,13 +28,15 @@ interface ImageElement {
   borderRadius: number;
   height: number;
   width: number;
-  position: Position2D;
+  position: Position;
 }
 
 interface GradientContextType {
   selectedGradient: string;
   setSelectedGradient: (gradient: string) => void;
   textElements: TextElement[];
+  setTextElements: any;
+  setImageElements: any;
   addTextElement: (text: string) => void;
   updateTextElement: (id: string, updates: Partial<TextElement>) => void;
   deleteElement: (idToDelete: string, type: "text" | "image") => void;
@@ -44,7 +49,7 @@ interface GradientContextType {
   setSelectedImage: (id: string | null) => void;
   updateElementPosition: (
     id: string,
-    position: Position2D,
+    position: Position,
     type: "text" | "image"
   ) => void;
   deleteElementFromContext: (
@@ -76,10 +81,11 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
       fontSize: "14px",
       fontFamily: "Arial",
       color: "#000000",
-      position: { x: 50, y: 50 },
+      position: { x: 50, y: 50, zIndex: 100 },
       bold: false,
       italic: false,
       underline: false,
+      zIndex: 10,
     };
     setTextElements([...textElements, newElement]);
     setNewTextElement("");
@@ -108,7 +114,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
       borderRadius: 0,
       height: 200,
       width: 200,
-      position: { x: 50, y: 50 },
+      position: { x: 50, y: 50, zIndex: 10 },
     };
     setImageElements([...imageElements, newImage]);
   };
@@ -123,7 +129,7 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
 
   const updateElementPosition = (
     id: string,
-    position: Position2D,
+    position: Position,
     type: "text" | "image"
   ) => {
     if (type === "text") {
@@ -170,6 +176,8 @@ export function GradientProvider({ children }: { children: React.ReactNode }) {
         setSelectedImage,
         updateElementPosition,
         deleteElementFromContext,
+        setTextElements,
+        setImageElements,
       }}
     >
       {children}
